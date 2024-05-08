@@ -9,9 +9,6 @@ import platform
 import time
 from datetime import time, date, datetime
 
-SIZE_X = 10
-SIZE_Y = 10
-
 STATE_DEFAULT = 0
 STATE_CLICKED = 1
 STATE_FLAGGED = 2
@@ -24,6 +21,8 @@ window = None
 class Minesweeper:
 
     def __init__(self, tk):
+        self.size_x = 16
+        self.size_y = 16
 
         # import images
         self.images = {
@@ -40,7 +39,23 @@ class Minesweeper:
         # set up frame
         self.tk = tk
         self.frame = Frame(self.tk)
-        self.frame.pack()
+        self.frame.pack(fill="both", expand=True)
+
+        # set up menu
+        menu_bar = Menu(self.frame)
+        self.tk.config(menu=menu_bar)
+        menu_game = Menu(menu_bar, tearoff=False)
+        menu_game.add_command(label="New", command=self.restart, accelerator="F2")
+        menu_game.add_separator()
+        tgl=StringVar()
+        tgl.set('Intermediate')
+        menu_game.add_radiobutton(label='Biginner', variable=tgl, command=self.set_biginner)
+        menu_game.add_radiobutton(label='Intermediate', variable=tgl, command=self.set_intermediate)
+        menu_game.add_radiobutton(label='Expert', variable=tgl, command=self.set_expert)
+        menu_game.add_separator()
+        menu_game.add_command(label="Exit", command=self.tk.quit)
+        menu_game.bind_all("<F2>", self.restart)
+        menu_bar.add_cascade(label="Game", menu=menu_game)
 
         # set up labels/UI
         self.labels = {
@@ -48,9 +63,9 @@ class Minesweeper:
             "mines": Label(self.frame, text = "Mines: 0"),
             "flags": Label(self.frame, text = "Flags: 0")
         }
-        self.labels["time"].grid(row = 0, column = 0, columnspan = SIZE_Y) # top full width
-        self.labels["mines"].grid(row = SIZE_X+1, column = 0, columnspan = int(SIZE_Y/2)) # bottom left
-        self.labels["flags"].grid(row = SIZE_X+1, column = int(SIZE_Y/2)-1, columnspan = int(SIZE_Y/2)) # bottom right
+        self.labels["time"].grid(row = 0, column = 0, columnspan = self.size_y) # top full width
+        self.labels["mines"].grid(row = self.size_x+1, column = 0, columnspan = int(self.size_y/2)) # bottom left
+        self.labels["flags"].grid(row = self.size_x+1, column = int(self.size_y/2)-1, columnspan = int(self.size_y/2)) # bottom right
 
         self.restart() # start game
         self.updateTimer() # init timer
@@ -65,8 +80,8 @@ class Minesweeper:
         # create buttons
         self.tiles = dict({})
         self.mines = 0
-        for x in range(0, SIZE_X):
-            for y in range(0, SIZE_Y):
+        for x in range(0, self.size_x):
+            for y in range(0, self.size_y):
                 if y == 0:
                     self.tiles[x] = {}
 
@@ -100,8 +115,8 @@ class Minesweeper:
                 self.tiles[x][y] = tile
 
         # loop again to find nearby mines and display number on tile
-        for x in range(0, SIZE_X):
-            for y in range(0, SIZE_Y):
+        for x in range(0, self.size_x):
+            for y in range(0, self.size_y):
                 mc = 0
                 for n in self.getNeighbors(x, y):
                     mc += 1 if n["isMine"] else 0
@@ -111,13 +126,37 @@ class Minesweeper:
         self.setup()
         self.refreshLabels()
 
+    def set_biginner(self):
+        for x in range(0, self.size_x):
+            for y in range(0, self.size_y):
+                self.tiles[x][y]["button"].destroy()
+        self.size_x = 8
+        self.size_y = 8
+        self.restart()
+
+    def set_intermediate(self):
+        for x in range(0, self.size_x):
+            for y in range(0, self.size_y):
+                self.tiles[x][y]["button"].destroy()
+        self.size_x = 16
+        self.size_y = 16
+        self.restart()
+
+    def set_expert(self):
+        for x in range(0, self.size_x):
+            for y in range(0, self.size_y):
+                self.tiles[x][y]["button"].destroy()
+        self.size_x = 16
+        self.size_y = 30
+        self.restart()
+
     def refreshLabels(self):
         self.labels["flags"].config(text = "Flags: "+str(self.flagCount))
         self.labels["mines"].config(text = "Mines: "+str(self.mines))
 
     def gameOver(self, won):
-        for x in range(0, SIZE_X):
-            for y in range(0, SIZE_Y):
+        for x in range(0, self.size_x):
+            for y in range(0, self.size_y):
                 if self.tiles[x][y]["isMine"] == False and self.tiles[x][y]["state"] == STATE_FLAGGED:
                     self.tiles[x][y]["button"].config(image = self.images["wrong"])
                 if self.tiles[x][y]["isMine"] == True and self.tiles[x][y]["state"] != STATE_FLAGGED:
@@ -186,7 +225,7 @@ class Minesweeper:
         if tile["state"] != STATE_CLICKED:
             tile["state"] = STATE_CLICKED
             self.clickedCount += 1
-        if self.clickedCount == (SIZE_X * SIZE_Y) - self.mines:
+        if self.clickedCount == (self.size_x * self.size_y) - self.mines:
             self.gameOver(True)
 
     def onRightClick(self, tile):
