@@ -1,19 +1,19 @@
 Python Tkinter Minesweeper
 ===========================
 
-Minesweeper game written in Python using Tkinter GUI library.
+kinterGUIライブラリを用いて、Pythonで書かれたマインスイーパです。
 
 <img src="https://i.imgur.com/8JwCyAQ.png" alt="Screenshot on OSX" height="350"/>
 
 Contents:
 ----------
 
-- */minesweeper.py* - The actual python program
-- */images/* - GIF Images ready for usage with Tkinter
-- */images/original* - Original PNG images made with GraphicsGale
+- */minesweeper.py* - ゲーム本体
+- */images/* - Tkinterで使用できるGIF画像
+- */images/original* - GraphicsGaleで作成されたオリジナルのPNG画像
 
 To Do:
 ----------
-- Have specific number of mines, rather than random
-- Highscore table
-- Adjustable grid and mine count via UI
+- [ ] ランダムではなく特定の数の地雷がある
+- [ ] ハイスコ​​ア表
+- [ ] UI 経由でグリッドと地雷の数を調整可能
